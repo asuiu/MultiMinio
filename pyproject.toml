@@ -20,19 +20,19 @@ tsx = ">=0.1.4"
 pytest = "~7.4.2"
 pytest-mock = "~3.11.1"
 invoke = "~2.0"
-black = ">=23.1"
+black = ">=23.9"
 pycodestyle = "~2.10"
 pydocstyle = "~6.3"
-mypy = "~1.4.1"
-pylint = "~2.16"
+mypy = "~1.5.1"
+pylint = ">=2.17.5"
 termcolor = "~2.2.0"
 commitizen = "~2.42.1"
 tomlkit = "~0.11.6"
 pytest-only = "~=2.0.0"
-coverage = {extras = ["toml"], version = "~7.2.1"}
+coverage = { extras = ["toml"], version = "~7.2.1" }
 pytest-cov = "~4.0.0"
-scikit-build = "~0.16.7"
-tsx = "^0.1.4"
+#scikit-build = "~0.16.7"
+prospector = ">=1.10.1"
 pre-commit = ">=2.21.0"
 
 [tool.poetry.scripts]
@@ -52,8 +52,8 @@ default_language_version = '3.8'
 
 [tool.pylint.master]
 #ignore="tests,test_integrations"
-ignore-patterns=["test_.*"]
-load-plugins=["pylint.extensions.no_self_use"]
+ignore-patterns = ["test_.*"]
+load-plugins = ["pylint.extensions.no_self_use"]
 
 [tool.pylint.messages_control]
 max-line-length = 160
@@ -67,14 +67,15 @@ disable = ["import-error",
     "too-many-instance-attributes",
     "logging-fstring-interpolation"]
 output-format = "colorized"
-max-locals=25
-max-args=10
-enable="useless-suppression"
+max-locals = 25
+max-args = 10
+enable = "useless-suppression"
 
 [tool.ruff]
 # Enable Pyflakes `E` and `F` codes by default.
 select = ["E", "F"]
-ignore = []
+ignore = ["E501"]
+
 
 # Allow autofix for all enabled rules (when `--fix`) is provided.
 fixable = ["A", "B", "C", "D", "E", "F"]
