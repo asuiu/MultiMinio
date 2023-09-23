@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "multiminio"
-version = "1.0.0"  # do not edit manually. kept in sync with `tool.commitizen` config via automation
+version = "1.0.1"  # do not edit manually. kept in sync with `tool.commitizen` config via automation
 description = "MultiMinio: provides failover and health-checking for applications using multiple Minio object storage instances, ensuring uninterrupted access and resilience."
 authors = ["Andrei Suiu <andrei.suiu@gmail.com>"]
 repository = "https://github.com/asuiu/multiminio"
@@ -85,7 +85,7 @@ unfixable = []
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "1.0.0"  # do not edit manually. kept in sync with `tool.poetry` config via automation
+version = "1.0.1"  # do not edit manually. kept in sync with `tool.poetry` config via automation
 tag_format = "v$version"
 
 # Same as Black.
