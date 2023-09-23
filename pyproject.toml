@@ -34,6 +34,7 @@ pytest-cov = "~4.0.0"
 #scikit-build = "~0.16.7"
 prospector = ">=1.10.1"
 pre-commit = ">=2.21.0"
+twine = ">=4.0.2"
 
 [tool.poetry.scripts]
 test = "tasks:test"
