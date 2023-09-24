@@ -37,7 +37,7 @@ class MultiMinio(Minio):
         # Get all methods of Minio class
         all_attributes_and_methods = dir(Minio)
         public_methods = [attr for attr in all_attributes_and_methods if callable(getattr(Minio, attr)) and not attr.startswith("_")]
-        instance = super().__new__(cls)
+        instance = super().__new__(cls) # pylint: disable=no-value-for-parameter
         for method_name in public_methods:
             method = getattr(Minio, method_name)
             setattr(instance, method_name, instance._method_wrapper(method))
