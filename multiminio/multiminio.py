@@ -5,7 +5,7 @@ from typing import Callable, Collection, NamedTuple, Optional, Tuple, Type
 
 import requests
 from minio import Minio
-from minio.error import MinioException
+from minio.error import InvalidResponseError, MinioException, S3Error
 from streamerate import stream
 from strenum import StrEnum
 from tsx import TS
@@ -37,7 +37,7 @@ class MultiMinio(Minio):
         # Get all methods of Minio class
         all_attributes_and_methods = dir(Minio)
         public_methods = [attr for attr in all_attributes_and_methods if callable(getattr(Minio, attr)) and not attr.startswith("_")]
-        instance = super().__new__(cls, *args, **kwargs)
+        instance = super().__new__(cls)
         for method_name in public_methods:
             method = getattr(Minio, method_name)
             setattr(instance, method_name, instance._method_wrapper(method))
@@ -119,7 +119,11 @@ class MultiMinio(Minio):
                 with self._lock:
                     self._current_fail_ts = None
                 return result
-            except Exception as e:
+            except S3Error:
+                raise
+            except InvalidResponseError:
+                raise
+            except Exception as e:  # pylint: disable=broad-exception-caught
                 with self._lock:
                     if self._current_fail_ts is None:
                         self._current_fail_ts = start_try_ts
@@ -144,9 +148,10 @@ class MultiMinio(Minio):
                         self._current_client_index = i
                         return self._clients[self._current_client_index]
                 now_ts = self._ts_type.now()
-                down_time = now_ts - start_ts
+                down_time = float(now_ts - start_ts)
                 if down_time > self._fallback_timeout:
-                    raise MinioException(f"All Minio clients are down for {down_time:.3f} seconds")
+                    error_msg = f"All Minio clients are down for {down_time:.3f} seconds"
+                    raise MinioException(error_msg)
 
     def _retrieve_clients_health(self) -> Tuple[HealthStatus, ...]:
         health_status_age = self._ts_type.now() - self._last_health_check_ts
@@ -164,12 +169,12 @@ class MultiMinio(Minio):
         t0 = self._ts_type.now()
         try:
             response = requests.get(f"{url}/minio/health/live", timeout=self._health_check_timeout)
-            dt = self._ts_type.now() - t0
+            dt = float(self._ts_type.now() - t0)
             logging.warning(f"Health check for {url} took {dt:.3f} seconds")
             health_status = HealthStatus(status_code=response.status_code, response_time=dt)
             return health_status
         except requests.RequestException as e:
-            dt = self._ts_type.now() - t0
+            dt = float(self._ts_type.now() - t0)
             health_status = HealthStatus(status_code=e, response_time=dt)
             return health_status
 

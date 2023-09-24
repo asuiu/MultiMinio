@@ -19,30 +19,6 @@ BUCKET1 = "bucket1"
 OBJECT1 = "path1/object1"
 
 
-@pytest.fixture
-def client1():
-    client = MagicMock(spec=Minio)
-    base_url = MagicMock(spec=ParseResult)
-    base_url.geturl.return_value = "http://minio1.com"
-    client._base_url = base_url
-    client.get_object.side_effect = [Exception("Client 1 failed initially"), "Client 1 Result"]
-    return client
-
-
-@pytest.fixture
-def client2():
-    client = MagicMock(spec=Minio)
-    base_url = MagicMock(spec=ParseResult)
-    base_url.geturl.return_value = "http://minio2.com"
-    client._base_url = base_url
-
-    def side_effect(bucket_name, object_nam, *args, **kwargs):
-        return {(BUCKET1, OBJECT1): EXPECTED_RESULT}[(bucket_name, object_nam)]
-
-    client.get_object = side_effect
-    return client
-
-
 class TestMultiMinio:
     @pytest.fixture(scope="function")
     def mock_request_get(self, mocker):
@@ -56,14 +32,6 @@ class TestMultiMinio:
         mock_get.return_value = response
 
         return mock_get
-
-    @staticmethod
-    @pytest.fixture(scope="function")
-    def patched_minio(client1, client2):
-        with patch("multiminio.multiminio.requests.get") as mock_get:
-            # First call to health check returns a timeout for client1 and success for client2
-            mock_get.side_effect = [FAIL_HEALTH, SUCCESS_HEALTH]
-            yield MultiMinio([client1, client2])
 
     @staticmethod
     def test_multiminio_get_object():
